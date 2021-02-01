@@ -7,3 +7,4 @@ A sample website to demonstrate how to build a multi language website using ASP.
 * Switch Language based on url ex `/ar` or `/en`.
 * Use resource `.resx` file for text localization.
 * Reroute Url when switch between languages to maintain same page.
+* Ability to set the default language in `Startup.cs`
