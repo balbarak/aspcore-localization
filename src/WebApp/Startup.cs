@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,18 +39,53 @@ namespace WebApp
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
             app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseAuthorization();
 
+            var defaultLang = "ar";
+            var options = GetRequestLocalizationOptions(defaultLang);
+
+            app.UseRequestLocalization(options);
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{culture}/{controller=Home}/{action=Index}/{id?}",
+                    defaults:new { culture = defaultLang });
             });
+        }
+
+
+        private RequestLocalizationOptions GetRequestLocalizationOptions(string defaultLang)
+        {
+            var arSACulture = new CultureInfo("ar")
+            {
+                NumberFormat = new CultureInfo("en").NumberFormat,
+                DateTimeFormat = new CultureInfo("en").DateTimeFormat
+            };
+
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en"),
+                arSACulture
+            };
+
+            var options = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(defaultLang),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures,
+            };
+
+            var requestProvider = new RouteDataRequestCultureProvider();
+            options.RequestCultureProviders.Insert(0, requestProvider);
+
+            return options;
         }
     }
 }
